@@ -4,6 +4,9 @@ body{
 }
 
 #board{
-    background-color: lightgrey;
+    background-color: lightblue;
     border-bottom: 1px solid black ;
+}
+html{
+    background-color: black;
 }
