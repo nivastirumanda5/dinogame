@@ -1,11 +1,10 @@
 
-
-//board 
+//board
 let board;
 let boardWidth = 750;
 let boardHeight = 250;
 let context;
- 
+
 //dino
 let dinoWidth = 88;
 let dinoHeight = 94;
@@ -20,12 +19,12 @@ let dino = {
     height : dinoHeight
 }
 
-// cactus
+//cactus
 let cactusArray = [];
 
-let cactus1width = 34;
-let cactus2width = 69;
-let cactus3width = 102;
+let cactus1Width = 34;
+let cactus2Width = 69;
+let cactus3Width = 102;
 
 let cactusHeight = 70;
 let cactusX = 700;
@@ -43,20 +42,20 @@ let gravity = .4;
 let gameOver = false;
 let score = 0;
 
-window.onload = function(){
+window.onload = function() {
     board = document.getElementById("board");
     board.height = boardHeight;
     board.width = boardWidth;
 
     context = board.getContext("2d"); //used for drawing on the board
-    
-    //draw initial dino
+
+    //draw initial dinosaur
     // context.fillStyle="green";
-    //context.fillRect(dino.x, dino.y, dino.width, dino.height);
+    // context.fillRect(dino.x, dino.y, dino.width, dino.height);
 
     dinoImg = new Image();
     dinoImg.src = "./img/dino.png";
-    dinoImg.onload = function(){
+    dinoImg.onload = function() {
         context.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
     }
 
@@ -70,11 +69,11 @@ window.onload = function(){
     cactus3Img.src = "./img/cactus3.png";
 
     requestAnimationFrame(update);
-    setInterval(placeCactus, 1000);//1000 milliseconds = 1second
+    setInterval(placeCactus, 1000); //1000 milliseconds = 1 second
     document.addEventListener("keydown", moveDino);
 }
 
-function update(){
+function update() {
     requestAnimationFrame(update);
     if (gameOver) {
         return;
@@ -90,8 +89,83 @@ function update(){
     for (let i = 0; i < cactusArray.length; i++) {
         let cactus = cactusArray[i];
         cactus.x += velocityX;
-        SVGTextContentElement.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height)
+        context.drawImage(cactus.img, cactus.x, cactus.y, cactus.width, cactus.height);
+
+        if (detectCollision(dino, cactus)) {
+            gameOver = true;
+            dinoImg.src = "./img/dino-dead.png";
+            dinoImg.onload = function() {
+                context.drawImage(dinoImg, dino.x, dino.y, dino.width, dino.height);
+            }
+        }
+    }
+
+    //score
+    context.fillStyle="red";
+    context.font="20px courier";
+    score++;
+    context.fillText(score, 5, 20);
+}
+
+function moveDino(e) {
+    if (gameOver) {
+        return;
+    }
+    if((e.code == "Space" || e.code == "ArrowUp") && dino.y ==dinoY) {
+        //jump
+        velocityY = -10;
+    }
+    else if (e.code == "arrowDown" && dino.y == dinoY) {
+        //duck
+    }
+
+}
+
+function placeCactus() {
+    if (gameOver) {
+        return;
+    }
+
+    //place cactus
+    let cactus = {
+        img : null,
+        x : cactusX,
+        y : cactusY,
+        width : null,
+        height : cactusHeight
+    }
+
+    let placeCactusChance = Math.random(); //0-0.999999....
+
+    if(placeCactusChance > .75) { //20% you get cactus3
+        cactus.img = cactus3Img;
+        cactus.width = cactus3Width;
+        cactusArray.push(cactus);
+    }
+    else if(placeCactusChance > .55) { //40% you get cactus3
+        cactus.img = cactus2Img;
+        cactus.width = cactus2Width;
+        cactusArray.push(cactus);
+    }
+    else if(placeCactusChance > .35) { //60% you get cactus3
+        cactus.img = cactus1Img;
+        cactus.width = cactus1Width;
+        cactusArray.push(cactus);
+    }
+
+    if (cactusArray.length > 5) {
+        cactusArray.shift(); //remove the first elemt from the array so that the array doesn't constantly grow
     }
 }
+
+function detectCollision(a, b) {
+    return a.x < b.x + b.width &&        //a's top left corner doesmn't reach b's top right corner
+           a.x + a.width > b.x &&        //a's top right corner passes b's top left corner
+           a.y < b.y + b.height &&       // a's top left corner doesn't reach b's bottom left corner
+           a.y + a.height > b.y;         //a's bottom left corner passes b's top left corner 
+}
+
+
+
 
  
